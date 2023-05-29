@@ -1,21 +1,55 @@
 import copy
+from PrioQueue import *
+import logging 
 
 class puzzle:
     def __init__(self, initial, final) -> None:
         self.initial = initial
-        self.final = final
+        self.final = final 
         
-    def getDistance(self, a,b):
+    def solve(self):
+        boardqueue = PQueue()
+        curMove = board(self.initial, self.final)
+        diff = curMove.getTotalInPlace()
+        boards = [curMove]
+        counts = 0
+        
+        while(diff != 0):
+            moves = curMove.calcNextMove()
+            for i in moves:
+                boardqueue.push(i)
+            curMove = boardqueue.pop()
+            diff = curMove.getTotalInPlace()
+            print(curMove)
+            counts += 1
+            if(counts > 12): break
+        
+        logging.info("Solved in %d steps" % counts)
+        return curMove
+             
+             
+    def getDistance(self, a,b) -> int:
+        """
+        Get move distance between of number a and b. (Does not take location)
+        """
         coorA = self.getLocation(a)
         coorB = self. getLocation(b)
         return abs((coorB[0] - coorA[0])) + abs((coorB[1] - coorA[1]))
     
+    # Not used, for testing purposes.
     def getManhDiff(self, a):
         coorInt = self.getLocation(a, board= 0)
         coorFin = self.getLocation(a, board= 1)
         return abs((coorFin[0] - coorInt[0])) + abs((coorFin[1] - coorInt[1]))
 
+    
     def getLocation(self, num, board=0):
+        """
+        Get coordinates of number
+
+        :param int num: number
+        :param int board: board=0: current board, board=1 Goal board.
+        """
         for i in range(3):
             for j in range(3):
                 if self.initial[i][j] == num and board == 0:
@@ -23,42 +57,26 @@ class puzzle:
                 elif self.final[i][j] == num and board == 1:
                     return i,j
     
-    def __repr__(self):
-        print("Current Board: ")
-        for i in self.initial:
-            print(i)
-        print("Goal Board: ")
-        for i in self.final:
-            print(i)
-                
-                
-    def getManhTotal(self):
-        totalman = 0
-        for i in range(3):
-            for j in range(3):
-                totalman += self.getManhDiff(self.initial[i][j])
-        return totalman
                 
 class board:
     def __init__(self, board, goal, parent = 0) -> None:
         self.board = board
-        if(parent != 0): 
+        self.goal = goal
+        self.distance = self.getTotalInPlace()
+        
+        if(type(parent) is not int): 
             self.parent = parent
         else: 
-            self.parent = [ [ 1, 1, 1 ],  
-                                [ 1, 1, 1 ],  
-                                [ 1, 1, 1 ] ] 
-        self.goal = goal
-        self.distance = self.getManhTotal()
+            self.parent = 0 
         
     def __eq__(self, other):
         return self.distance == other.distance
     
     def __lt__(self, other):
-        return self.distance > other.distance
+        return self.distance < other.distance
     
     def __le__(self, other):
-        return self.distance >= other.distance
+        return self.distance <= other.distance
     
     def __repr__(self):
         returnstring = ""
@@ -66,7 +84,7 @@ class board:
             for j in i:
                 returnstring += str(j) + " "
             returnstring += "\n"
-        returnstring += "Manh diff: " + str(self.distance)
+        returnstring += "diff: " + str(self.distance) + "\n"
         return returnstring
     
     def findNum(self, num = 0, isgoal = 0):
@@ -81,50 +99,48 @@ class board:
         newMove[a[0]][a[1]], newMove[b[0]][b[1]] = newMove[b[0]][b[1]], newMove[a[0]][a[1]]
         return newMove
     
-    # Checks if the move it was generator from matches this to avoid going back and forth
+    # Checks if the move it was generated from matches this to avoid going back and forth
     def isParentMove(self, move):
-        for i in range(3):
-            for j in range(3):
-                if(self.parent[i][j] != move[i][j]):
-                    return False
+        if(type(self.parent) != int): 
+            return self.parent.board == move
+        else:
+            return False
                 
-        return True
-                
-    def getManhDiff(self, item):
-        coorInt = self.findNum(item)
-        coorFin = self.findNum(item, 1)
-        return abs((coorFin[0] - coorInt[0])) + abs((coorFin[1] - coorInt[1]))
+ #   def getManhDiff(self, item):
+ #       coorInt = self.findNum(item)
+ #       coorFin = self.findNum(item, 1)
+ #       return abs((coorFin[0] - coorInt[0])) + abs((coorFin[1] - coorInt[1]))
     
-    def getManhTotal(self):
-        totalman = 0
+    def getTotalInPlace(self):
+        distance = 0
         for i in range(3):
             for j in range(3):
-                #totalman += self.getManhDiff(self.board[i][j])
-                if(self.goal[i][j] == self.board[i][j]):
-                    totalman += 1
-        return totalman
+                if(self.goal[i][j] != self.board[i][j]):
+                    distance += 1
+        return distance
     
     def calcNextMove(self):
         zero = self.findNum()
         
-        #hack way to create an array of 2d lists
-        moves = [self.board[:], self.board[:]]
-        del moves[-1]
-        del moves[-1]
+        moves = [] # List of 2d arrays, not boards
         newCoor = [0,0]
         
         #Calculate Y axis moves
         if(zero[0] < 2):
+            #Generate new Coordinate to move to
             newCoor[0] = zero[0] + 1
             newCoor[1] = zero[1]
-            moves.append(self.genSwapedMove(zero, newCoor))
-            if(self.isParentMove(moves[-1])):
+            #Generate 2d array rep of new move
+            moves.append(self.genSwapedMove(zero, newCoor))    
+            # Check if it matches previous move
+            if(self.isParentMove(moves[-1])): 
                 del moves[-1]
+                
         if(zero[0] >= 1):
             newCoor[0] = zero[0] -1
             newCoor[1] = zero[1]
             moves.append(self.genSwapedMove(zero, newCoor))
-            if(self.isParentMove(moves[-1])):
+            if(self.isParentMove(moves[-1])): 
                 del moves[-1]
         
         #Calculate X axis moves
@@ -132,18 +148,29 @@ class board:
             newCoor[0] = zero[0] 
             newCoor[1] = zero[1] + 1
             moves.append(self.genSwapedMove(zero, newCoor))
-            if(self.isParentMove(moves[-1])):
+            if(self.isParentMove(moves[-1])): 
                 del moves[-1]
                 
         if(zero[1] >= 1):
             newCoor[0] = zero[0]
             newCoor[1] = zero[1] - 1
             moves.append(self.genSwapedMove(zero, newCoor))
-            if(self.isParentMove(moves[-1])):
+            if(self.isParentMove(moves[-1])): 
                 del moves[-1]
+        
+        # Generate return list
         returnList = []
         for i in moves:
-               returnList.append(board(i, self.goal, self.board))
+               returnList.append(board(i, self.goal, self))
                
         return returnList
     
+    def getParentList(self):
+        parents = [self.board]
+        currBoard = self
+        
+        while(currBoard.parent != [ [ 1, 1, 1 ],  
+                                [ 1, 1, 1 ],  
+                                [ 1, 1, 1 ] ]):
+            parents.append(currBoard.parent)
+            currBoard = currBoard.parent

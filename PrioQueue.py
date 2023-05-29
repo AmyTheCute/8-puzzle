@@ -7,9 +7,9 @@ class PQueue:
         c = k*2
         
         while(c < len(self.array)):
-            if(c+1 < len(self.array) and self.array[c+1] > self.array[c]):
+            if(c+1 < len(self.array) and self.array[c+1] < self.array[c]):
                 c+=1
-            if(self.array[c] > self.array[k]):
+            if(self.array[c] < self.array[k]):
                 self.array[c], self.array[k] = self.array[k],  self.array[c]
                 k = c
                 c = k*2
@@ -21,7 +21,7 @@ class PQueue:
         current = node
         
         while(child >= 1):
-            if(self.array[current] > self.array[child]):
+            if(self.array[current] < self.array[child]):
                 self.array[child], self.array[current] = self.array[current],  self.array[child]
                 current = child
                 child = int(current/2)
@@ -32,6 +32,9 @@ class PQueue:
         return(str(self.array))
     
     def pop(self):
+        if(len(self.array) <= 1):
+            raise Exception("Index out of range")
+        
         temp = self.array[1]
         self.array[1] = self.array[len(self.array) - 1]
         del self.array[len(self.array) - 1]
