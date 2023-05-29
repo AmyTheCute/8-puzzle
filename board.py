@@ -101,7 +101,7 @@ class board:
     
     # Checks if the move it was generated from matches this to avoid going back and forth
     def isParentMove(self, move):
-        if(type(self.parent) != int): 
+        if(type(self.parent) != int):
             return self.parent.board == move
         else:
             return False
@@ -120,6 +120,7 @@ class board:
         return distance
     
     def calcNextMove(self):
+
         zero = self.findNum()
         
         moves = [] # List of 2d arrays, not boards
