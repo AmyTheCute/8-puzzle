@@ -3,19 +3,30 @@ import copy
 class puzzle:
     def __init__(self, initial, final) -> None:
         self.initial = initial
-        self.final = final
+        self.final = final 
         
-    def getDistance(self, a,b):
+    def getDistance(self, a,b) -> int:
+        """
+        Get move distance between of number a and b. (Does not take location)
+        """
         coorA = self.getLocation(a)
         coorB = self. getLocation(b)
         return abs((coorB[0] - coorA[0])) + abs((coorB[1] - coorA[1]))
     
+    # Not used, for testing purposes.
     def getManhDiff(self, a):
         coorInt = self.getLocation(a, board= 0)
         coorFin = self.getLocation(a, board= 1)
         return abs((coorFin[0] - coorInt[0])) + abs((coorFin[1] - coorInt[1]))
 
+    
     def getLocation(self, num, board=0):
+        """
+        Get coordinates of number
+
+        :param int num: number
+        :param int board: board=0: current board, board=1 Goal board.
+        """
         for i in range(3):
             for j in range(3):
                 if self.initial[i][j] == num and board == 0:
@@ -24,6 +35,7 @@ class puzzle:
                     return i,j
     
     def __repr__(self):
+        self.getManhTotal
         print("Current Board: ")
         for i in self.initial:
             print(i)
@@ -31,7 +43,7 @@ class puzzle:
         for i in self.final:
             print(i)
                 
-                
+            
     def getManhTotal(self):
         totalman = 0
         for i in range(3):
@@ -81,7 +93,7 @@ class board:
         newMove[a[0]][a[1]], newMove[b[0]][b[1]] = newMove[b[0]][b[1]], newMove[a[0]][a[1]]
         return newMove
     
-    # Checks if the move it was generator from matches this to avoid going back and forth
+    # Checks if the move it was generated from matches this to avoid going back and forth
     def isParentMove(self, move):
         for i in range(3):
             for j in range(3):
