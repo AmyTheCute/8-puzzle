@@ -7,8 +7,8 @@ initial = [ [ 1, 2, 3 ],
             [ 7, 8, 4 ] ]  
 
 final = [ [ 1, 2, 3 ],  
-        [ 4, 5, 6 ],  
-        [ 7, 8, 0 ] ]  
+        [ 5, 8, 6 ],  
+        [ 0, 7, 4 ] ]  
 
 firstBoard = puzzle(initial, final)
 
@@ -20,4 +20,3 @@ moves = firstBoard.solve()
 
 print("Solved puzzle: ")
 print(moves)
-

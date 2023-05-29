@@ -1,6 +1,5 @@
 import copy
 from PrioQueue import *
-import logging 
 
 class puzzle:
     def __init__(self, initial, final) -> None:
@@ -22,9 +21,7 @@ class puzzle:
             diff = curMove.getTotalInPlace()
             print(curMove)
             counts += 1
-            if(counts > 12): break
-        
-        logging.info("Solved in %d steps" % counts)
+
         return curMove
              
              
